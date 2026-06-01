@@ -542,6 +542,7 @@ const teamData = {
       role: "团队PI",
       research: "大气环境与气候变化",
       photo: "assets/teachers/liaohong.jpg",
+      photoClass: "team-photo-liaohong",
       link: "https://faculty.nuist.edu.cn/liaohong/zh_CN/index.htm"
     },
     {

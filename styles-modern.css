@@ -1087,6 +1087,11 @@ body[data-page="about"] .content-section:first-of-type .section-header p {
   transform: scale(1.16);
 }
 
+.team-card img.team-photo-liaohong {
+  object-position: 50% 17%;
+  transform: scale(1.95);
+}
+
 .team-card h3 {
   font-size: 18px;
   font-weight: 600;
