@@ -552,11 +552,11 @@ const teamData = {
       photoClass: "team-photo-guwangjinli"
     },
     {
-      name: "张薇檬",
-      role: "NH3和NOx",
+      name: "沈志慧",
+      role: "乘用车排放清单",
       research: "",
-      photo: "人物卡片/张薇檬.jpg",
-      photoClass: "team-photo-zhangweimeng"
+      photo: "人物卡片/沈志慧.jpg",
+      photoClass: "team-photo-shenzhihui"
     },
     {
       name: "刘俊杰",
@@ -564,6 +564,13 @@ const teamData = {
       research: "",
       photo: "人物卡片/刘俊杰.jpg",
       photoClass: "team-photo-yangjunjie"
+    },
+    {
+      name: "张薇檬",
+      role: "NH3和NOx",
+      research: "",
+      photo: "人物卡片/张薇檬.jpg",
+      photoClass: "team-photo-zhangweimeng"
     },
     {
       name: "唐峻天",
