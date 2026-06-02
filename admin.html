@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理员面板 - 农业SLCFs排放数据集</title>
+  <link rel="stylesheet" href="styles-modern.css?v=20260601b" />
+  <script src="script.js?v=20260601b" defer></script>
+</head>
+<body data-page="admin">
+  <div class="page-shell">
+    <div id="site-header-slot" class="site-shell-slot"></div>
+    <div id="site-announcement-slot" class="site-shell-slot"></div>
+
+    <main class="page-main">
+      <section class="content-section">
+        <div class="content-grid">
+          <div class="content-card admin-panel">
+            <h1>注册审核</h1>
+            <div id="adminMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="admin-filters">
+              <input type="text" id="adminSearch" placeholder="搜索用户名、教育邮箱、机构或职称" />
+              <select id="statusFilter">
+                <option value="pending">待审核</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">已拒绝</option>
+              </select>
+              <select id="pageSize">
+                <option value="20">20 条/页</option>
+                <option value="50">50 条/页</option>
+                <option value="100">100 条/页</option>
+              </select>
+              <button type="button" class="button secondary" id="searchPending">查询</button>
+            </div>
+
+            <div class="admin-toolbar">
+              <button type="button" class="button primary" id="refreshPending">刷新列表</button>
+              <button type="button" class="button secondary" id="reloadWhitelist">刷新白名单</button>
+              <button type="button" class="button secondary" id="approveSelected">批量通过</button>
+              <button type="button" class="button danger" id="rejectSelected">批量拒绝</button>
+              <input type="text" id="rejectReason" placeholder="拒绝原因（可选）" />
+            </div>
+
+            <div class="admin-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="selectAllPending" /></th>
+                    <th>用户名</th>
+                    <th>教育邮箱</th>
+                    <th>机构</th>
+                    <th>职称</th>
+                    <th>提交时间</th>
+                  </tr>
+                </thead>
+                <tbody id="pendingList">
+                  <tr>
+                    <td colspan="6">正在加载…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="admin-pagination">
+              <button type="button" class="button secondary" id="prevPage">上一页</button>
+              <span id="pageInfo">第 1 页 / 共 1 页</span>
+              <button type="button" class="button secondary" id="nextPage">下一页</button>
+            </div>
+
+            <p class="admin-hint">提示：请使用管理员账号登录后执行审核与公告维护操作。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="content-grid">
+          <div class="content-card admin-panel">
+            <h1>下载用户统计</h1>
+            <div id="downloadUserStatsMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="admin-filters">
+              <input type="date" id="downloadStatsDateFrom" />
+              <input type="date" id="downloadStatsDateTo" />
+              <select id="downloadStatsDataset">
+                <option value="">全部数据集</option>
+                <option value="agriculture_emission">农业排放清单</option>
+                <option value="other_emission">其他排放清单</option>
+              </select>
+              <input type="number" id="downloadStatsYear" min="2000" max="2100" placeholder="年份" />
+              <input type="text" id="downloadStatsKeyword" placeholder="搜索姓名、邮箱、机构或职位" />
+              <select id="downloadStatsPageSize">
+                <option value="20">20 条/页</option>
+                <option value="50">50 条/页</option>
+                <option value="100">100 条/页</option>
+              </select>
+              <button type="button" class="button secondary" id="downloadStatsQuery">查询</button>
+              <button type="button" class="button primary" id="downloadStatsRefresh">刷新</button>
+            </div>
+
+            <div class="admin-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>姓名</th>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>机构</th>
+                    <th>职位/职称</th>
+                    <th>下载次数</th>
+                    <th>文件数</th>
+                    <th>涉及数据集</th>
+                    <th>最近下载时间</th>
+                  </tr>
+                </thead>
+                <tbody id="downloadUserStatsList">
+                  <tr>
+                    <td colspan="9">正在加载…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="admin-pagination">
+              <button type="button" class="button secondary" id="downloadStatsPrevPage">上一页</button>
+              <span id="downloadStatsPageInfo">第 1 页 / 共 1 页</span>
+              <button type="button" class="button secondary" id="downloadStatsNextPage">下一页</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="content-grid">
+          <div class="content-card admin-panel">
+            <h1>公告管理</h1>
+            <div id="announcementMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="admin-filters">
+              <input type="text" id="announcementSearch" placeholder="搜索公告内容" />
+              <select id="announcementLang">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+              </select>
+              <select id="announcementActive">
+                <option value="">全部状态</option>
+                <option value="true">仅启用</option>
+                <option value="false">仅停用</option>
+              </select>
+              <button type="button" class="button secondary" id="announcementQuery">查询</button>
+            </div>
+
+            <div class="admin-toolbar">
+              <button type="button" class="button primary" id="announcementCreate">新增公告</button>
+              <button type="button" class="button secondary" id="announcementRefresh">刷新列表</button>
+            </div>
+
+            <div class="admin-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>内容</th>
+                    <th>语言</th>
+                    <th>顺序</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="announcementList">
+                  <tr>
+                    <td colspan="5">正在加载…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="content-grid">
+          <div class="content-card admin-panel">
+            <h1>数据文件管理</h1>
+            <div id="inventoryMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="inventory-admin-grid">
+              <form id="inventoryUploadForm" class="inventory-admin-form">
+                <div class="admin-form-grid">
+                  <label class="admin-form-field admin-form-field-wide">
+                    <span>数据文件</span>
+                    <input id="inventoryFile" type="file" accept=".tif,.tiff" required />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>数据类型</span>
+                    <select id="inventoryDataType" required>
+                      <option value="emission">排放数据</option>
+                    </select>
+                  </label>
+                  <label class="admin-form-field">
+                    <span>数据集</span>
+                    <select id="inventoryDatasetPreset">
+                      <option value="agriculture_emission|农业排放清单">农业排放清单</option>
+                      <option value="other_emission|其他排放清单">其他排放清单</option>
+                      <option value="custom|自定义">自定义</option>
+                    </select>
+                  </label>
+                  <label class="admin-form-field">
+                    <span>数据集标识</span>
+                    <input id="inventoryDatasetKey" type="text" value="agriculture_emission" />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>数据集名称</span>
+                    <input id="inventoryDatasetName" type="text" value="农业排放清单" />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>标题</span>
+                    <input id="inventoryTitle" type="text" placeholder="例如：2018 年 NH3 排放清单" required />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>污染物 / 指标</span>
+                    <input id="inventoryPollutant" type="text" placeholder="例如：NH3" />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>年份</span>
+                    <input id="inventoryYear" type="number" min="2000" max="2100" placeholder="例如：2018" required />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>分类</span>
+                    <input id="inventoryCategory" type="text" list="inventoryCategoryOptions" value="时间" required />
+                    <datalist id="inventoryCategoryOptions">
+                      <option value="时间"></option>
+                      <option value="物种"></option>
+                      <option value="车型"></option>
+                      <option value="道路类型"></option>
+                      <option value="乘用车日尺度排放清单"></option>
+                      <option value="快递业道路尺度排放清单"></option>
+                      <option value="作物类型"></option>
+                      <option value="农业活动"></option>
+                    </datalist>
+                  </label>
+                  <label class="admin-form-field">
+                    <span>对象</span>
+                    <input id="inventorySubject" type="text" placeholder="例如：livestock / 奶牛 / 乘用车 / 快递业" />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>时间尺度</span>
+                    <select id="inventoryScale">
+                      <option value="annual">annual</option>
+                      <option value="monthly">monthly</option>
+                      <option value="daily">daily</option>
+                      <option value="hourly">hourly</option>
+                      <option value="other">other</option>
+                    </select>
+                  </label>
+                  <label class="admin-form-field">
+                    <span>周期</span>
+                    <input id="inventoryPeriod" type="text" placeholder="Annual 或 01-12" />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>版本</span>
+                    <input id="inventoryVersion" type="text" value="v1" />
+                  </label>
+                  <label class="admin-form-field">
+                    <span>Developer</span>
+                    <input id="inventoryDeveloper" type="text" value="开发团队占位符" />
+                  </label>
+                  <label class="admin-form-field admin-form-field-wide">
+                    <span>说明</span>
+                    <textarea id="inventoryDescription" rows="4" placeholder="填写该数据文件的来源、处理说明、适用范围等"></textarea>
+                  </label>
+                </div>
+
+                <div class="admin-toolbar">
+                  <label class="admin-check">
+                    <input id="inventoryPublish" type="checkbox" checked />
+                    <span>上传后立即发布</span>
+                  </label>
+                  <button type="submit" class="button primary">上传并保存</button>
+                  <button type="button" class="button secondary" id="inventoryRefresh">刷新列表</button>
+                </div>
+              </form>
+
+              <div class="admin-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>文件</th>
+                      <th>数据类型</th>
+                      <th>数据集</th>
+                      <th>年份</th>
+                      <th>分类</th>
+                      <th>对象</th>
+                      <th>时间尺度</th>
+                      <th>大小</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventoryList">
+                    <tr>
+                      <td colspan="10">正在加载…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer-slot" class="site-shell-slot"></div>
+  </div>
+</body>
+</html>
+
