@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" />
 
   <link rel="stylesheet" href="styles-modern.css?v=20260603a" />
-  <script src="script.js?v=20260603b" defer></script>
+  <script src="script.js?v=20260603c" defer></script>
 </head>
 <body data-page="downloads">
   <div class="page-shell">
@@ -236,9 +236,9 @@
                 <span id="filterScaleLabel">时间尺度</span>
               </label>
               <div class="filter-options">
-                <label><input type="radio" name="scale" value="all" checked /> 全部</label>
-                <label><input type="radio" name="scale" value="annual" /> 年度</label>
-                <label><input type="radio" name="scale" value="monthly" /> 月度</label>
+                <label data-scale-option="all"><input type="radio" name="scale" value="all" checked /> 全部</label>
+                <label data-scale-option="annual"><input type="radio" name="scale" value="annual" /> 年度</label>
+                <label data-scale-option="monthly"><input type="radio" name="scale" value="monthly" /> 月度</label>
               </div>
             </div>
 

@@ -2528,7 +2528,10 @@ function initializeDownloadsPage() {
 
   const updateDownloadScaleOptions = (mainCategory) => {
     const scaleInputs = document.querySelectorAll('input[name="scale"]');
+    const scaleOptionLabels = document.querySelectorAll('[data-scale-option]');
     const annualOnly = mainCategory === "CH4排放清单" || mainCategory === "HONO排放清单";
+    const hideNonAnnual = mainCategory === "HONO排放清单";
+
     scaleInputs.forEach(input => {
       if (annualOnly) {
         input.checked = input.value === "annual";
@@ -2537,7 +2540,13 @@ function initializeDownloadsPage() {
         input.disabled = false;
       }
     });
-    if (scaleSection) scaleSection.style.display = mainCategory === "HONO排放清单" ? "none" : "";
+
+    scaleOptionLabels.forEach(label => {
+      const option = label.getAttribute('data-scale-option');
+      label.style.display = hideNonAnnual && option !== "annual" ? "none" : "";
+    });
+
+    if (scaleSection) scaleSection.style.display = "";
   };
 
   const updateDownloadDatasetMode = () => {
