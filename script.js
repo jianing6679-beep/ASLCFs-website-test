@@ -2526,6 +2526,7 @@ function initializeDownloadsPage() {
   const categorySection = document.getElementById('categorySection');
   const categoryOptions = document.getElementById('categoryOptions');
   const scaleSection = document.getElementById('scaleSection');
+  const monthSection = document.getElementById('monthSection');
   const categoryTime = document.getElementById('categoryTime');
   const categorySpecies = document.getElementById('categorySpecies');
   const timeSubjectSection = document.getElementById('timeSubjectSection');
@@ -2556,6 +2557,20 @@ function initializeDownloadsPage() {
 
   const getCheckedValue = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || "";
 
+  const updateDownloadMonthOptions = () => {
+    const datasetKey = getCheckedValue("datasetKey") || "agriculture_emission";
+    const scale = getCheckedValue("scale") || "all";
+    const showMonth = datasetKey === "agriculture_emission" && scale === "monthly";
+    const monthInputs = document.querySelectorAll('input[name="month"]');
+
+    if (monthSection) monthSection.style.display = showMonth ? "" : "none";
+    monthInputs.forEach((input, index) => {
+      input.disabled = !showMonth;
+      input.required = showMonth && index === 0;
+      if (!showMonth) input.checked = false;
+    });
+  };
+
   const updateDownloadYearOptions = (mainCategory) => {
     const yearInputs = document.querySelectorAll('input[name="year"]');
     yearInputs.forEach(input => {
@@ -2567,6 +2582,7 @@ function initializeDownloadsPage() {
       }
     });
     if (yearSection) yearSection.style.display = "";
+    updateDownloadMonthOptions();
   };
 
   const updateDownloadScaleOptions = (mainCategory) => {
@@ -2580,7 +2596,7 @@ function initializeDownloadsPage() {
         input.checked = input.value === "annual";
         input.disabled = input.value !== "annual";
       } else {
-        input.checked = input.value === "all";
+        input.checked = input.checked || input.value === "all";
         input.disabled = false;
       }
     });
@@ -2591,6 +2607,7 @@ function initializeDownloadsPage() {
     });
 
     if (scaleSection) scaleSection.style.display = "";
+    updateDownloadMonthOptions();
   };
 
   const updateDownloadDatasetMode = () => {
@@ -2620,6 +2637,12 @@ function initializeDownloadsPage() {
     });
     scaleInputs.forEach(input => {
       input.disabled = isOther && isExpressDelivery;
+    });
+    if (monthSection) monthSection.style.display = "none";
+    document.querySelectorAll('input[name="month"]').forEach(input => {
+      input.disabled = true;
+      input.required = false;
+      input.checked = false;
     });
     if (otherPendingSection) otherPendingSection.style.display = isOther && isExpressDelivery ? "" : "none";
     if (otherPollutantSection) otherPollutantSection.style.display = isOther && !isExpressDelivery ? "" : "none";
@@ -2698,6 +2721,7 @@ function initializeDownloadsPage() {
     if ((getCheckedValue("datasetKey") || "agriculture_emission") === "other_emission") return;
     const mainCategory = getCheckedValue("mainCategory") || "NH3排放清单";
     updateDownloadYearOptions(mainCategory);
+    updateDownloadScaleOptions(mainCategory);
     renderDownloadSectorOptions(mainCategory);
     renderDownloadTimeSubjectOptions(mainCategory);
 
@@ -2714,6 +2738,7 @@ function initializeDownloadsPage() {
     }
 
     updateDownloadSubjectSections();
+    updateDownloadMonthOptions();
   };
 
   if (categoryTime && categorySpecies) {
@@ -2746,6 +2771,9 @@ function initializeDownloadsPage() {
   }
   if (categoryOptions) {
     categoryOptions.addEventListener('change', updateDownloadSubjectSections);
+  }
+  if (scaleSection) {
+    scaleSection.addEventListener('change', updateDownloadMonthOptions);
   }
   updateDownloadDatasetMode();
 
@@ -2782,6 +2810,7 @@ async function handleEmissionDownload(event) {
   const category = formData.get('category');
   const sector = formData.get('sector') || (mainCategory === 'CH4排放清单' ? '甲烷来源' : '畜牧业');
   const scale = formData.get('scale') || 'all';
+  const period = scale === "monthly" ? formData.get('month') : "";
   const selectedPollutant = getPollutantFromMainCategory(mainCategory);
 
   if (selectedPollutant === "HONO") {
@@ -2795,6 +2824,11 @@ async function handleEmissionDownload(event) {
     }
   } else if (!year || !mainCategory || !category) {
     showMatchResult('请填写所有必填项', 'error');
+    return;
+  }
+
+  if (scale === "monthly" && !period) {
+    showMatchResult('请选择月份。', 'error');
     return;
   }
 
@@ -2840,7 +2874,8 @@ async function handleEmissionDownload(event) {
       year,
       category: selectedPollutant === "HONO" ? "" : category,
       subjects: selectedPollutant === "HONO" ? ["HONO"] : subjects,
-      scale
+      scale,
+      period
     });
 
     if (zenodoMatch) {
@@ -2851,7 +2886,8 @@ async function handleEmissionDownload(event) {
         year,
         category: selectedPollutant === "HONO" ? "" : category,
         subjects: selectedPollutant === "HONO" ? ["HONO"] : subjects,
-        scale
+        scale,
+        period
       });
       window.open(zenodoMatch.zenodoUrl, "_blank", "noopener");
       showMatchResult(`已记录下载申请，正在打开 Zenodo 文件：${zenodoMatch.filename}`, "success");
@@ -2950,6 +2986,14 @@ function getZenodoSubjectAliases(subject) {
   return [value];
 }
 
+function getZenodoFilePeriod(item) {
+  const text = `${item.filename || ""}/${item.relativePath || ""}`;
+  const year = String(item.year || "");
+  const pattern = new RegExp(`(?:^|[^0-9])${year}[_-](0[1-9]|1[0-2])(?:[^0-9]|$)`);
+  const matched = text.match(pattern);
+  return matched ? matched[1] : "";
+}
+
 async function findZenodoEmissionFile(filters) {
   const items = await loadZenodoFileIndex();
   const subjects = Array.isArray(filters.subjects)
@@ -2966,8 +3010,9 @@ async function findZenodoEmissionFile(filters) {
       const sameCategory = !item.category || item.category === filters.category;
       const sameYear = item.year === filters.year;
       const sameScale = item.scale === scale;
+      const samePeriod = scale !== "monthly" || !filters.period || getZenodoFilePeriod(item) === filters.period;
       const sameSubject = !item.subject || subjects.includes(item.subject);
-      return samePollutant && sameMainCategory && sameSector && sameCategory && sameYear && sameScale && sameSubject;
+      return samePollutant && sameMainCategory && sameSector && sameCategory && sameYear && sameScale && samePeriod && sameSubject;
     });
     if (matched) return matched;
   }
@@ -2997,6 +3042,7 @@ async function recordZenodoDownloadRequest(file, filters) {
       category: file.category || filters.category,
       subject: file.subject || (Array.isArray(filters.subjects) ? filters.subjects.join(", ") : ""),
       scale: file.scale || filters.scale,
+      period: filters.period || getZenodoFilePeriod(file),
       filters: {
         ...filters,
         filename: file.filename,
