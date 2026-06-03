@@ -27,6 +27,8 @@
   ]
 };
 
+const ADVISOR_REQUIRED_TITLES = ["undergraduate", "master", "doctoral", "postdoc"];
+
 const PUBLIC_EMAIL_DOMAINS = [
   "qq.com",
   "163.com",
@@ -137,9 +139,11 @@ const pageData = {
     confirmNewPasswordLabel: "确认新密码",
     resetPasswordButton: "重置密码",
     backToLoginLink: "想起密码了？",
-    regUsernameLabel: "用户名",
+    regUsernameLabel: "真实姓名",
     regInstitutionLabel: "机构",
     regTitleLabel: "职称",
+    regAdvisorLabel: "导师姓名",
+    regAdvisorHint: "本科生、硕士研究生、博士研究生和博士后需填写导师姓名。",
     regEmailLabel: "教育邮箱",
     regEmailHint: "请填写学校或科研机构教育邮箱，用于身份核验与审核。",
     regTitleOptions: REGISTER_TITLE_OPTIONS.zh,
@@ -241,9 +245,11 @@ const pageData = {
     confirmNewPasswordLabel: "Confirm New Password",
     resetPasswordButton: "Reset Password",
     backToLoginLink: "Remembered it?",
-    regUsernameLabel: "Username",
+    regUsernameLabel: "Real Name",
     regInstitutionLabel: "Institution",
     regTitleLabel: "Title",
+    regAdvisorLabel: "Advisor Name",
+    regAdvisorHint: "Undergraduate, master, doctoral, and postdoctoral users must provide an advisor name.",
     regEmailLabel: "Educational Email",
     regEmailHint: "Use your university or institutional email for identity verification and review.",
     regTitleOptions: REGISTER_TITLE_OPTIONS.en,
@@ -1138,6 +1144,8 @@ function setLanguage(lang) {
   if (document.getElementById("regUsernameLabel")) document.getElementById("regUsernameLabel").textContent = page.regUsernameLabel;
   if (document.getElementById("regInstitutionLabel")) document.getElementById("regInstitutionLabel").textContent = page.regInstitutionLabel || pageData.zh.regInstitutionLabel;
   if (document.getElementById("regTitleLabel")) document.getElementById("regTitleLabel").textContent = page.regTitleLabel || pageData.zh.regTitleLabel;
+  if (document.getElementById("regAdvisorLabel")) document.getElementById("regAdvisorLabel").textContent = page.regAdvisorLabel || pageData.zh.regAdvisorLabel;
+  if (document.getElementById("regAdvisorHint")) document.getElementById("regAdvisorHint").textContent = page.regAdvisorHint || pageData.zh.regAdvisorHint;
   if (document.getElementById("regEmailLabel")) document.getElementById("regEmailLabel").textContent = page.regEmailLabel;
   if (document.getElementById("regEmailHint")) document.getElementById("regEmailHint").textContent = page.regEmailHint || pageData.zh.regEmailHint;
   if (document.getElementById("regPasswordLabel")) document.getElementById("regPasswordLabel").textContent = page.regPasswordLabel;
@@ -2035,6 +2043,7 @@ function updateRegisterTitleOptions(page) {
   const selectedValue = select.value;
   const options = page.regTitleOptions || REGISTER_TITLE_OPTIONS.zh;
   setSelectOptions(select, options, selectedValue);
+  updateRegisterAdvisorField();
 }
 
 function getRegisterTitleLabel(value, lang = currentLanguage) {
@@ -2042,6 +2051,26 @@ function getRegisterTitleLabel(value, lang = currentLanguage) {
   const options = REGISTER_TITLE_OPTIONS[lang] || REGISTER_TITLE_OPTIONS.zh;
   const matched = options.find(option => option.value === value);
   return matched ? matched.label : value;
+}
+
+function shouldRequireAdvisor(title) {
+  return ADVISOR_REQUIRED_TITLES.includes(title);
+}
+
+function updateRegisterAdvisorField() {
+  const titleSelect = document.getElementById("regTitle");
+  const advisorGroup = document.getElementById("regAdvisorGroup");
+  const advisorInput = document.getElementById("regAdvisor");
+  if (!titleSelect || !advisorGroup || !advisorInput) return;
+
+  const required = shouldRequireAdvisor(titleSelect.value);
+  advisorGroup.hidden = !required;
+  advisorInput.required = required;
+  advisorInput.setAttribute("aria-required", required ? "true" : "false");
+  if (!required) {
+    advisorInput.value = "";
+    advisorInput.setCustomValidity("");
+  }
 }
 
 function isEducationalEmail(email) {
@@ -3675,6 +3704,7 @@ function initializeAuth() {
     registerForm.addEventListener("submit", handleRegister);
     initializePasswordToggles(registerForm);
     initializePasswordValidation();
+    initializeRegisterAdvisorField();
   }
 
   if (forgotPasswordForm) {
@@ -3799,6 +3829,14 @@ function initializePasswordValidation() {
       }
     });
   }
+}
+
+function initializeRegisterAdvisorField() {
+  const titleSelect = document.getElementById("regTitle");
+  if (!titleSelect) return;
+
+  titleSelect.addEventListener("change", updateRegisterAdvisorField);
+  updateRegisterAdvisorField();
 }
 
 function initializeResetPasswordValidation() {
@@ -4081,6 +4119,8 @@ async function handleRegister(event) {
   const username = document.getElementById("regUsername").value.trim();
   const institution = document.getElementById("regInstitution").value.trim();
   const title = document.getElementById("regTitle").value;
+  const advisorInput = document.getElementById("regAdvisor");
+  const advisor = advisorInput ? advisorInput.value.trim() : "";
   const email = document.getElementById("regEmail").value.trim();
   const password = document.getElementById("regPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
@@ -4100,6 +4140,11 @@ async function handleRegister(event) {
     return;
   }
 
+  if (shouldRequireAdvisor(title) && !advisor) {
+    setAuthMessage("该职位/职称需填写导师姓名。", "error");
+    return;
+  }
+
   if (!isEducationalEmail(email)) {
     setAuthMessage("请填写学校或科研机构教育邮箱，不支持个人公共邮箱。", "error");
     return;
@@ -4113,7 +4158,8 @@ async function handleRegister(event) {
       confirmPassword,
       profile: {
         institution,
-        title
+        title,
+        advisor
       }
     });
 
@@ -4400,11 +4446,11 @@ function initializeDownloadUserStatsAdmin() {
 
     list.innerHTML = items.map((item) => `
       <tr>
-        <td>${escapeHtml(item.name || "-")}</td>
-        <td>${escapeHtml(item.username || "-")}</td>
+        <td>${escapeHtml(item.name || item.username || "-")}</td>
         <td>${escapeHtml(item.email || "-")}</td>
         <td>${escapeHtml(item.institution || "-")}</td>
         <td>${escapeHtml(item.title ? getRegisterTitleLabel(item.title) : "-")}</td>
+        <td>${escapeHtml(shouldRequireAdvisor(item.title) ? (item.advisor || "-") : "-")}</td>
         <td>${Number(item.downloadCount || 0).toLocaleString()}</td>
         <td>${Number(item.fileCount || 0).toLocaleString()}</td>
         <td>${escapeHtml(Array.isArray(item.datasets) && item.datasets.length ? item.datasets.join("、") : "-")}</td>
