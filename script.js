@@ -3474,23 +3474,32 @@ async function updateVisitStats() {
   if (!visitCount) return;
 
   visitCount.textContent = VISIT_BASE_COUNT.toLocaleString();
+  const visitRecordedKey = "aslcfs_visit_recorded";
+  const hasRecordedVisit = sessionStorage.getItem(visitRecordedKey) === "true";
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/analytics/visit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        page: document.body?.dataset?.page || "",
-        path: window.location.pathname,
-        referrer: document.referrer || ""
+    const response = hasRecordedVisit
+      ? await fetch(`${API_BASE_URL}/api/analytics/visit-count`, {
+        credentials: "include"
       })
-    });
+      : await fetch(`${API_BASE_URL}/api/analytics/visit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          page: document.body?.dataset?.page || "",
+          path: window.location.pathname,
+          referrer: document.referrer || ""
+        })
+      });
 
     if (!response.ok) throw new Error("Failed to record visit");
 
     const data = await response.json();
     visitCount.textContent = Number(data.totalCount || VISIT_BASE_COUNT).toLocaleString();
+    if (!hasRecordedVisit) {
+      sessionStorage.setItem(visitRecordedKey, "true");
+    }
   } catch (error) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/analytics/visit-count`, {
