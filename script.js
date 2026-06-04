@@ -566,7 +566,7 @@ const teamData = {
     },
     {
       name: "古王立今",
-      role: "农业NH3",
+      role: "农业NH3排放清单开发",
       research: "",
       photo: "人物卡片/古王立今.jpg",
       photoClass: "team-photo-guwangjinli",
@@ -574,7 +574,7 @@ const teamData = {
     },
     {
       name: "沈志慧",
-      role: "乘用车排放清单",
+      role: "乘用车排放清单开发",
       research: "",
       photo: "人物卡片/沈志慧.jpg",
       photoClass: "team-photo-shenzhihui",
@@ -582,7 +582,7 @@ const teamData = {
     },
     {
       name: "刘俊杰",
-      role: "种植业CH4",
+      role: "种植业CH4排放清单开发",
       research: "",
       photo: "人物卡片/刘俊杰.jpg",
       photoClass: "team-photo-yangjunjie",
@@ -590,7 +590,7 @@ const teamData = {
     },
     {
       name: "张薇檬",
-      role: "NH3和NOx",
+      role: "NH3和NOx排放清单开发",
       research: "",
       photo: "人物卡片/张薇檬.jpg",
       photoClass: "team-photo-zhangweimeng",
@@ -598,7 +598,7 @@ const teamData = {
     },
     {
       name: "唐峻天",
-      role: "畜牧CH4",
+      role: "畜牧业CH4排放清单开发",
       research: "",
       photo: "人物卡片/唐峻天.jpg",
       photoClass: "team-photo-tangjuntian",
