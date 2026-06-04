@@ -1233,9 +1233,13 @@ let announcementRequestId = 0;
 async function loadAnnouncements(lang) {
   const requestId = ++announcementRequestId;
   renderAnnouncements([lang === "zh" ? "公告加载中..." : "Loading announcements..."]);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 4000);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/announcements?lang=${lang}`);
+    const response = await fetch(`${API_BASE_URL}/api/announcements?lang=${lang}`, {
+      signal: controller.signal
+    });
     const data = await response.json();
     if (requestId !== announcementRequestId) return;
 
@@ -1245,6 +1249,8 @@ async function loadAnnouncements(lang) {
     }
   } catch (error) {
     // fallback to local data
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (requestId !== announcementRequestId) return;
