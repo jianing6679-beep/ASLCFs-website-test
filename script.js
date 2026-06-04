@@ -141,11 +141,11 @@ const pageData = {
     registerLink: "还没有账户？",
     registerTitle: "用户注册",
     forgotPasswordTitle: "找回密码",
-    forgotPasswordText: "请输入注册时使用的教育邮箱，我们会发送一个 30 分钟内有效的重置链接。",
+    forgotPasswordText: "密码重置功能暂未开放，请联系管理员协助重置密码。",
     resetPasswordTitle: "重置密码",
     resetPasswordText: "请设置新密码。密码需包含大写字母、小写字母和数字。",
     resetEmailLabel: "教育邮箱",
-    sendResetLinkButton: "发送重置链接",
+    sendResetLinkButton: "查看重置说明",
     newPasswordLabel: "新密码",
     confirmNewPasswordLabel: "确认新密码",
     resetPasswordButton: "重置密码",
@@ -247,11 +247,11 @@ const pageData = {
     registerLink: "Don't have an account?",
     registerTitle: "User Registration",
     forgotPasswordTitle: "Recover Password",
-    forgotPasswordText: "Enter your educational email and we will send a reset link valid for 30 minutes.",
+    forgotPasswordText: "Password reset is not available yet. Please contact the administrator for assistance.",
     resetPasswordTitle: "Reset Password",
     resetPasswordText: "Set a new password with uppercase, lowercase, and a number.",
     resetEmailLabel: "Educational Email",
-    sendResetLinkButton: "Send Reset Link",
+    sendResetLinkButton: "View Reset Notice",
     newPasswordLabel: "New Password",
     confirmNewPasswordLabel: "Confirm New Password",
     resetPasswordButton: "Reset Password",
@@ -1000,6 +1000,10 @@ function createSiteHeaderMarkup(activePage) {
           <div class="visit-stats">
             <span id="statLabel">访问统计</span>
             <strong id="visitCount">0</strong>
+          </div>
+          <div id="authStatus" class="auth-status" hidden>
+            <span id="authUserName" class="auth-user-name"></span>
+            <button id="logoutButton" class="logout-button" type="button">退出登录</button>
           </div>
         </div>
       </div>
@@ -4666,6 +4670,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeRasterInventory();
   initializeDownloadHistory();
   initializeAuth();
+  updateHeaderAuthState();
+  showLogoutMessageIfNeeded();
   initializeAdmin();
   revealAdminLink();
   initializeSectorTags();
@@ -4698,7 +4704,76 @@ function getAuthToken() {
 function clearStoredAuth() {
   sessionStorage.removeItem("authToken");
   localStorage.removeItem("authToken");
+  localStorage.removeItem("token");
   localStorage.removeItem("currentUser");
+  localStorage.removeItem("user");
+}
+
+function getStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem("currentUser") || "null");
+  } catch (error) {
+    return null;
+  }
+}
+
+function getDisplayUserName(user) {
+  if (!user) return "";
+  return user.realName || user.fullName || user.name || user.username || user.email || "已登录";
+}
+
+function updateHeaderAuthState() {
+  const token = getAuthToken();
+  const user = getStoredUser();
+  const isLoggedIn = Boolean(token || user);
+  const authStatus = document.getElementById("authStatus");
+  const authUserName = document.getElementById("authUserName");
+  const logoutButton = document.getElementById("logoutButton");
+  const navLogin = document.getElementById("navLogin");
+  const navRegister = document.getElementById("navRegister");
+
+  if (navLogin) navLogin.hidden = isLoggedIn;
+  if (navRegister) navRegister.hidden = isLoggedIn;
+
+  if (authStatus) {
+    authStatus.hidden = !isLoggedIn;
+  }
+
+  if (authUserName) {
+    authUserName.textContent = isLoggedIn ? getDisplayUserName(user) : "";
+  }
+
+  if (logoutButton && !logoutButton.dataset.bound) {
+    logoutButton.addEventListener("click", handleLogout);
+    logoutButton.dataset.bound = "true";
+  }
+}
+
+function handleLogout() {
+  clearStoredAuth();
+  updateHeaderAuthState();
+
+  const adminLink = document.getElementById("navAdmin");
+  if (adminLink) adminLink.style.display = "none";
+
+  sessionStorage.setItem("logoutMessage", "已退出登录");
+  window.location.href = "index.html";
+}
+
+function showLogoutMessageIfNeeded() {
+  const message = sessionStorage.getItem("logoutMessage");
+  if (!message) return;
+  sessionStorage.removeItem("logoutMessage");
+
+  const notice = document.createElement("div");
+  notice.className = "auth-toast";
+  notice.textContent = message;
+  document.body.appendChild(notice);
+
+  window.setTimeout(() => {
+    notice.classList.add("is-hiding");
+    window.setTimeout(() => notice.remove(), 250);
+  }, 1800);
 }
 
 function initializeAuth() {
@@ -5082,6 +5157,7 @@ async function handleLogin(event) {
       localStorage.setItem("currentUser", JSON.stringify(data.user));
     }
 
+    updateHeaderAuthState();
     setAuthMessage("登录成功，正在跳转…", "success");
     setTimeout(() => {
       window.location.href = "index.html";
@@ -5095,19 +5171,7 @@ async function handleForgotPassword(event) {
   event.preventDefault();
   setAuthMessage("");
 
-  const email = document.getElementById("resetEmail").value.trim();
-  if (!email) {
-    setAuthMessage("请输入教育邮箱。", "error");
-    return;
-  }
-
-  try {
-    await requestJson(FORGOT_PASSWORD_URL, { email });
-    setAuthMessage("如果该邮箱已注册，重置链接已发送，请检查邮箱。", "success");
-    event.target.reset();
-  } catch (error) {
-    setAuthMessage(`发送失败：${error.message}`, "error");
-  }
+  setAuthMessage("密码重置功能暂未开放，请联系管理员重置密码。", "info");
 }
 
 async function handleResetPassword(event) {
