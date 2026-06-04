@@ -1605,6 +1605,170 @@ body[data-page="about"] .content-section:first-of-type .section-header p {
   min-width: 0;
 }
 
+/* Refined inventory sidebar: wider, calmer, and easier to scan. */
+.inventory-list-section {
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 26px;
+  width: min(1280px, 100%);
+}
+
+.inventory-sidebar {
+  position: sticky;
+  top: 92px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  padding: 14px;
+}
+
+.inventory-sidebar-title {
+  color: #0f172a;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.inventory-sidebar-toggle {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #64748b;
+  border-bottom: 2px solid #64748b;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.inventory-menu {
+  gap: 2px;
+  max-height: calc(100vh - 182px);
+  padding: 12px 3px 0 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
+}
+
+.inventory-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.inventory-menu::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.32);
+  border-radius: 999px;
+}
+
+.inventory-menu a {
+  min-height: 32px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.35;
+  padding: 6px 28px 6px 10px;
+  border-radius: 6px;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.inventory-menu a:hover,
+.inventory-menu a.active {
+  color: #0f766e;
+  background: rgba(13, 148, 136, 0.08);
+}
+
+.inventory-menu a.active {
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 #0f766e;
+}
+
+.inventory-menu-group {
+  color: #0f172a;
+  margin: 2px 0 6px;
+  font-size: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 4px 6px 2px !important;
+}
+
+.inventory-menu-child {
+  overflow-wrap: anywhere;
+}
+
+.inventory-menu-child::before {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  height: auto;
+  border-radius: 0;
+  background: rgba(148, 163, 184, 0.32);
+  transform: none;
+}
+
+.inventory-menu-parent::after {
+  content: "";
+  right: 11px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.8px solid #94a3b8;
+  border-bottom: 1.8px solid #94a3b8;
+  color: transparent;
+  font-size: 0;
+  transform: translateY(-60%) rotate(-45deg);
+}
+
+.inventory-menu-parent.is-expanded::after {
+  transform: translateY(-70%) rotate(45deg);
+}
+
+.inventory-menu a.has-active-descendant {
+  color: #0f766e !important;
+  background: rgba(13, 148, 136, 0.045);
+}
+
+.inventory-menu-level-1 {
+  padding-left: 12px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+}
+
+.inventory-menu-level-1::before {
+  display: none;
+}
+
+.inventory-menu-level-2 {
+  padding-left: 24px !important;
+  color: #1e293b !important;
+}
+
+.inventory-menu-level-2::before {
+  left: 12px;
+}
+
+.inventory-menu-level-3 {
+  padding-left: 38px !important;
+  color: #334155 !important;
+}
+
+.inventory-menu-level-3::before {
+  left: 25px;
+}
+
+.inventory-menu-level-4 {
+  padding-left: 52px !important;
+  color: #475569 !important;
+}
+
+.inventory-menu-level-4::before {
+  left: 38px;
+}
+
+.inventory-menu-level-5 {
+  padding-left: 66px !important;
+  color: #64748b !important;
+}
+
+.inventory-menu-level-5::before {
+  left: 51px;
+}
+
+.inventory-menu-disabled {
+  color: #94a3b8 !important;
+}
+
 .inventory-table-head {
   display: grid;
   grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
@@ -3859,5 +4023,31 @@ html[lang="en"] .inventory-menu-parent::after {
 @media (max-width: 1024px) {
   html[lang="en"] .inventory-list-section {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .inventory-sidebar {
+    position: static;
+    display: block;
+    max-height: none;
+  }
+
+  .inventory-menu {
+    max-height: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  .inventory-list-section {
+    gap: 14px;
+  }
+
+  .inventory-sidebar {
+    padding: 12px;
+  }
+
+  .inventory-menu {
+    max-height: 360px;
   }
 }
