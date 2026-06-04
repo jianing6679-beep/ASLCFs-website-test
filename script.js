@@ -989,10 +989,6 @@ function createSiteHeaderMarkup(activePage) {
         </nav>
 
         <div class="site-actions">
-          <form id="searchForm" class="search-form" aria-label="站点搜索">
-            <input id="searchInput" type="search" placeholder="${pageData.zh.searchPlaceholder}" />
-            <button type="submit">搜索</button>
-          </form>
           <select id="languageSelect" class="language-select" aria-label="语言">
             <option value="zh">中文</option>
             <option value="en">English</option>
@@ -4523,7 +4519,7 @@ async function updateVisitStats() {
 
 function handleSearch(event) {
   event.preventDefault();
-  currentSearch = document.getElementById("searchInput").value;
+  currentSearch = document.getElementById("searchInput")?.value || "";
   renderResources();
   renderPapers();
   const rasterKeyword = document.getElementById("rasterKeywordFilter");
