@@ -552,7 +552,8 @@ const teamData = {
       role: "教授",
       research: "活性氮排放及其大气环境效应",
       photo: "assets/teachers/libaojie.png",
-      link: "https://faculty.nuist.edu.cn/libaojie/zh_CN/index.htm"
+      link: "https://faculty.nuist.edu.cn/libaojie/zh_CN/index.htm",
+      group: "leader"
     },
     {
       name: "廖宏",
@@ -560,49 +561,56 @@ const teamData = {
       research: "大气环境与气候变化",
       photo: "assets/teachers/liaohong.jpg",
       photoClass: "team-photo-liaohong",
-      link: "https://faculty.nuist.edu.cn/liaohong/zh_CN/index.htm"
+      link: "https://faculty.nuist.edu.cn/liaohong/zh_CN/index.htm",
+      group: "leader"
     },
     {
       name: "古王立今",
       role: "农业NH3",
       research: "",
       photo: "人物卡片/古王立今.jpg",
-      photoClass: "team-photo-guwangjinli"
+      photoClass: "team-photo-guwangjinli",
+      group: "researcher"
     },
     {
       name: "沈志慧",
       role: "乘用车排放清单",
       research: "",
       photo: "人物卡片/沈志慧.jpg",
-      photoClass: "team-photo-shenzhihui"
+      photoClass: "team-photo-shenzhihui",
+      group: "researcher"
     },
     {
       name: "刘俊杰",
       role: "种植业CH4",
       research: "",
       photo: "人物卡片/刘俊杰.jpg",
-      photoClass: "team-photo-yangjunjie"
+      photoClass: "team-photo-yangjunjie",
+      group: "researcher"
     },
     {
       name: "张薇檬",
       role: "NH3和NOx",
       research: "",
       photo: "人物卡片/张薇檬.jpg",
-      photoClass: "team-photo-zhangweimeng"
+      photoClass: "team-photo-zhangweimeng",
+      group: "researcher"
     },
     {
       name: "唐峻天",
       role: "畜牧CH4",
       research: "",
       photo: "人物卡片/唐峻天.jpg",
-      photoClass: "team-photo-tangjuntian"
+      photoClass: "team-photo-tangjuntian",
+      group: "researcher"
     },
     {
       name: "张家宁",
       role: "技术支持",
       research: "",
       photo: "人物卡片/张家宁.jpg",
-      photoClass: "team-photo-zhangjianing"
+      photoClass: "team-photo-zhangjianing",
+      group: "researcher"
     }
   ]
 };
@@ -1248,7 +1256,12 @@ function renderTeam() {
   const container = document.getElementById("teamList");
   if (!container) return;
   const list = teamData[currentLanguage] || teamData.zh;
-  container.innerHTML = list.map(member => member.placeholder ? `
+  const groups = [
+    { key: "leader", title: currentLanguage === "zh" ? "负责人" : "Principal Investigators" },
+    { key: "researcher", title: currentLanguage === "zh" ? "研究成员" : "Research Members" }
+  ];
+
+  const renderMember = (member, groupKey) => member.placeholder ? `
     <article class="team-card team-card-placeholder" aria-label="团队成员占位">
       <div class="team-card-photo-placeholder"></div>
       <div class="team-card-body">
@@ -1258,7 +1271,7 @@ function renderTeam() {
       </div>
     </article>
   ` : `
-    <article class="team-card">
+    <article class="team-card ${groupKey === "leader" ? "team-card-leader" : "team-card-researcher"}">
       <div class="team-card-photo">
         <img
           src="${member.photo}"
@@ -1272,10 +1285,26 @@ function renderTeam() {
       <div class="team-card-body">
         <h3>${member.name}</h3>
         <p class="team-card-role">${member.role}</p>
-        <p class="team-card-research">${member.research}</p>
+        ${member.research ? `<p class="team-card-research">${member.research}</p>` : ""}
       </div>
     </article>
-  `).join("");
+  `;
+
+  container.innerHTML = groups.map(group => {
+    const members = list.filter(member => (member.group || "researcher") === group.key);
+    if (!members.length) return "";
+
+    return `
+      <section class="team-group team-group-${group.key}" aria-label="${group.title}">
+        <div class="team-group-heading">
+          <h3>${group.title}</h3>
+        </div>
+        <div class="team-group-grid">
+          ${members.map(member => renderMember(member, group.key)).join("")}
+        </div>
+      </section>
+    `;
+  }).join("");
 }
 
 function renderResources() {

@@ -1165,13 +1165,46 @@ body[data-page="about"] .content-section:first-of-type .section-header p {
 
 /* 团队网格 */
 .team-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.team-group {
+  width: 100%;
+}
+
+.team-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.team-group-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+}
+
+.team-group-heading h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0;
+}
+
+.team-group-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 24px;
 }
 
-.team-grid .team-card:nth-child(3) {
-  grid-column-start: 1;
+.team-group-leader .team-group-grid {
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  max-width: 650px;
 }
 
 .team-card {
@@ -1187,6 +1220,16 @@ body[data-page="about"] .content-section:first-of-type .section-header p {
   box-shadow: var(--shadow-lg);
   transform: translateY(-6px);
   border-color: var(--accent-light);
+}
+
+.team-card-leader {
+  padding: 34px 30px;
+  border-color: rgba(15, 118, 110, 0.22);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fffd 100%);
+}
+
+.team-card-leader:hover {
+  border-color: rgba(15, 118, 110, 0.42);
 }
 
 .team-card-placeholder {
@@ -1217,6 +1260,12 @@ body[data-page="about"] .content-section:first-of-type .section-header p {
   object-fit: cover;
   margin-bottom: 16px;
   border: 3px solid var(--bg-secondary);
+}
+
+.team-card-leader img {
+  width: 112px;
+  height: 112px;
+  border-color: rgba(15, 118, 110, 0.14);
 }
 
 .team-card img.team-photo-guwangjinli {
@@ -3933,8 +3982,9 @@ body[data-page="admin"] .button.danger:hover {
     padding-top: 16px;
   }
 
-  .team-grid .team-card:nth-child(3) {
-    grid-column-start: auto;
+  .team-group-leader .team-group-grid {
+    grid-template-columns: 1fr;
+    max-width: none;
   }
 
   body[data-page="about"] .content-section:first-of-type {
