@@ -4345,6 +4345,80 @@ html[lang="en"] .inventory-menu-parent::after {
   transform: translateY(-6px);
 }
 
+.auth-review-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.38);
+}
+
+.auth-review-dialog {
+  width: min(420px, 100%);
+  padding: 30px 32px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text-primary);
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+}
+
+.auth-review-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(5, 150, 105, 0.22);
+  border-radius: 999px;
+  background: rgba(5, 150, 105, 0.08);
+  color: #047857;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.auth-review-dialog h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.auth-review-dialog p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.auth-review-dialog .auth-review-note {
+  margin-top: 6px;
+  color: var(--text-tertiary);
+  font-size: 13.5px;
+}
+
+.auth-review-dialog button {
+  margin-top: 22px;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.auth-review-dialog button:hover {
+  background: var(--text-secondary);
+  transform: translateY(-1px);
+}
+
 @media (max-width: 1200px) {
   .site-actions {
     flex: 1 0 100%;

@@ -5000,6 +5000,34 @@ function setMessageById(elementId, text, type = "info") {
   box.style.display = "block";
 }
 
+function showRegisterReviewModal() {
+  const existing = document.getElementById("registerReviewModal");
+  if (existing) existing.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "registerReviewModal";
+  modal.className = "auth-review-modal";
+  modal.innerHTML = `
+    <div class="auth-review-dialog" role="dialog" aria-modal="true" aria-labelledby="registerReviewTitle">
+      <div class="auth-review-mark" aria-hidden="true">✓</div>
+      <h2 id="registerReviewTitle">注册信息已提交</h2>
+      <p>注册信息已提交，请等待管理员审核。</p>
+      <p class="auth-review-note">审核通过后，您即可登录并使用数据下载功能。</p>
+      <button id="registerReviewLoginButton" type="button">返回登录</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const loginButton = document.getElementById("registerReviewLoginButton");
+  if (loginButton) {
+    loginButton.focus();
+    loginButton.addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+  }
+}
+
 async function requestJson(url, payload) {
   const response = await fetch(url, {
     method: "POST",
@@ -5257,15 +5285,9 @@ async function handleRegister(event) {
       }
     });
 
-    if (data && data.status === "pending") {
-      setAuthMessage("注册申请已提交，请等待审核。", "info");
-      return;
-    }
-
-    setAuthMessage("注册成功，请登录。", "success");
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 800);
+    setAuthMessage("");
+    event.target.reset();
+    showRegisterReviewModal();
   } catch (error) {
     setAuthMessage(`注册失败：${error.message}`, "error");
   }
