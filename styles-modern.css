@@ -825,13 +825,14 @@ body.admin-nav-visible .site-nav a {
 }
 
 .hero-metrics {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(112px, 0.72fr) minmax(112px, 0.72fr) minmax(250px, 1.56fr);
   gap: 14px;
-  flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .hero-metric {
-  min-width: 140px;
+  min-width: 0;
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.58);
@@ -855,6 +856,10 @@ body.admin-nav-visible .site-nav a {
 }
 
 @media (max-width: 768px) {
+  .hero-metrics {
+    grid-template-columns: 1fr;
+  }
+
   .hero-metric strong.hero-metric-compact {
     white-space: normal;
   }
@@ -1056,7 +1061,7 @@ body.admin-nav-visible .site-nav a {
   }
 
   .hero-metric {
-    flex: 1 1 100%;
+    width: 100%;
   }
 }
 
